@@ -41,14 +41,14 @@ def cal_con(l, p):
     for i in range(len(l)):
         if p[i]:
             if l[i]:
-                TN += 1
+                TP += 1
             else:
-                FN += 1
+                FP += 1
         else:
             if l[i]:
-                FP += 1
+                FN += 1
             else:
-                TP += 1
+                TN += 1
     print(TP)
     print(FP)
     print(FN)
@@ -56,7 +56,7 @@ def cal_con(l, p):
 
 
 if num == 2:
-    a,b,c = 1/3, 1/3, 1/3
+    a, b, c = 1 / 3, 1 / 3, 1 / 3
     score = np.ones(label.shape)
     score = np.hstack([score, eff])
     score = np.hstack([score, res])
@@ -64,7 +64,7 @@ if num == 2:
     score = np.hstack([score, swin])
     score = np.hstack([score, reg])
     score = np.hstack([score, dense])
-    score_res = a * swin+b * reg + c * dense
+    score_res = a * swin + b * reg + c * dense
     score_res = score_res.reshape((-1))
     score = score[:, 1:]
     score_res = score.mean(axis=1)
@@ -111,7 +111,7 @@ else:
     score += swin
     score += reg
     score += dense
-    score = score/6
+    score = score / 6
     pred = np.argmax(score, axis=1)
     rec = recall_score(label, pred, average="macro")
     f1 = f1_score(label, pred, average="macro")
