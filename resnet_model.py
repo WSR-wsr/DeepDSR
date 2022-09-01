@@ -12,6 +12,7 @@ import pandas as pd
 
 class BasicBlock(nn.Module):
     expansion = 1
+
     def __init__(self, in_channel, out_channel, stride=1, downsample=None, **kwargs):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=in_channel, out_channels=out_channel,
@@ -179,7 +180,8 @@ def resnext101_32x8d(num_classes=1000, include_top=True):
                   width_per_group=width_per_group)
 
 
-def train(train_images_path, train_images_label, val_images_path=None, val_images_label=None, device='cuda:0', classes=2, epochs=20, val=True, data=1, init=True):
+def train(train_images_path, train_images_label, val_images_path=None, val_images_label=None, device='cuda:0',
+          classes=2, epochs=20, val=True, batch_size=32, data=1, init=True):
     device = torch.device(device if torch.cuda.is_available() else "cpu")
     print("using {} device.".format(device))
     if val_images_label is None:
@@ -205,7 +207,6 @@ def train(train_images_path, train_images_label, val_images_path=None, val_image
                                 transform=data_transform["val"])
 
     train_num = len(train_dataset)
-    batch_size = 16
     nw = min([os.cpu_count(), batch_size if batch_size > 1 else 0, 8])
     print('Using {} dataloader workers every process'.format(nw))
 
@@ -226,7 +227,7 @@ def train(train_images_path, train_images_label, val_images_path=None, val_image
         val_num = len(val_dataset)
         print("using {} images for training, {} images for validation.".format(train_num,
                                                                                val_num))
-    model = resnet34()
+    model = resnet50()
     if init:
         model_weight_path = "./init/resnet34-pre.pth"
         assert os.path.exists(model_weight_path), "file {} does not exist.".format(model_weight_path)
@@ -251,7 +252,7 @@ def train(train_images_path, train_images_label, val_images_path=None, val_image
                                          data_loader=val_loader,
                                          device=device,
                                          epoch=epoch)
-        f = open('./res_dir/train_res/data'+str(data)+'/resnet34_res.txt', 'a')
+        f = open('./res_dir/train_res/data' + str(data) + '/resnet34_res.txt', 'a')
         f.write('epoch: ' + str(epoch + 1) + '\n')
         f.write("train_loss: " + str(round(train_loss, 4)) + '\n')
         f.write("train_acc: " + str(round(train_acc, 4)) + '\n')
@@ -261,7 +262,7 @@ def train(train_images_path, train_images_label, val_images_path=None, val_image
         if best_acc < train_acc:
             best_acc = train_acc
             best_epoch = epoch
-            torch.save(model.state_dict(), './res_dir/weights/data'+str(data)+'/best_resnet34_model.pth')
+            torch.save(model.state_dict(), './res_dir/weights/data' + str(data) + '/best_resnet34_model.pth')
     f1 = open('./res_dir/best_res/best.txt', 'a')
     f1.write('res ' + 'epoch ' + str(best_epoch) + '  ' + str(best_acc) + '\n')
 
@@ -284,7 +285,7 @@ def predict(images_path, images_label, num_class=2, batch_size=8, data=1):
                                          pin_memory=True,
                                          num_workers=nw,
                                          collate_fn=dataset.collate_fn)
-    model_weight_path = './res_dir/weights/data'+str(data)+'/best_resnet34_model.pth'
+    model_weight_path = './res_dir/weights/data' + str(data) + '/best_resnet34_model.pth'
     model = resnet34(num_classes=num_class).to(device)
     model.load_state_dict(torch.load(model_weight_path, map_location=device))
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

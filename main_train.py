@@ -35,12 +35,12 @@ n_class = 2
 ep = 100
 device = 'cuda:0'
 if __name__ == '__main__':
-    for i in range(1, 2):
+    for i in range(0, 1):
         data_path = './data/data' + str(i) + '.txt'
         mk_dir(i)
         train, train_label, test, test_label = read_data(data_path, 0.2, n_class=n_class, seed=2)
         if TRAIN:
-            # effv2_train(train, train_label, classes=n_class, device=device, val=False, data=i, epochs=ep, init=PRE_train)
+            effv2_train(train, train_label, classes=n_class, device=device, val=False, data=i, epochs=ep, init=PRE_train)
             resnet_train(train, train_label, classes=n_class, device=device, val=False, data=i, epochs=ep, init=PRE_train)
             vit_train(train, train_label, classes=n_class, device=device, val=False, data=i, epochs=ep, init=PRE_train)
             swin_train(train, train_label, classes=n_class, device=device, val=False, data=i, epochs=ep, init=PRE_train)
